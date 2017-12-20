@@ -1,3 +1,9 @@
+if [ $# -eq 0 ]
+  then
+    echo "you need to specify the SAN"
+    exit
+fi
+
 #!/bin/bash
 FQDN=$1
 
@@ -18,7 +24,7 @@ openssl req \
   -key certs/ca/my-root-ca.key.pem \
   -days 1024 \
   -out certs/ca/my-root-ca.crt.pem \
-  -subj "/C=US/ST=Utah/L=Provo/O=ACME Signing Authority Inc/CN=example.com"
+  -subj "/C=GB/ST=Wiltshire/L=Salisbury/O=CI Precision/CN=ciprecision.com"
 
 # Create a Device Certificate for each domain,
 # such as example.com, *.example.com, awesome.example.com
@@ -31,12 +37,13 @@ openssl genrsa \
 openssl req -new \
   -key certs/server/privkey.pem \
   -out certs/tmp/csr.pem \
-  -subj "/C=US/ST=Utah/L=Provo/O=ACME Tech Inc/CN=${FQDN}"
+  -subj "/C=GB/ST=Wiltshire/L=Salisbury/O=CI Precision/CN=${FQDN}"
 
 # Sign the request from Device with your Root CA
-# -CAserial certs/ca/my-root-ca.srl
+# -CAserial certificates/ca/my-root-ca.srl
 openssl x509 \
   -req -in certs/tmp/csr.pem \
+  -extfile v3.ext \
   -CA certs/ca/my-root-ca.crt.pem \
   -CAkey certs/ca/my-root-ca.key.pem \
   -CAcreateserial \
